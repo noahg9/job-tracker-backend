@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\job-application-client",
+    "\\job-application-client\\src",
+    "\\JobApplicationTracker.Api",
+    "\\JobApplicationTracker.Api\\JobApplicationTracker.Api",
+    "\\JobApplicationTracker.Api\\JobApplicationTracker.Api\\Controllers",
+    "\\JobApplicationTracker.Api\\JobApplicationTracker.Api\\Data",
+    "\\JobApplicationTracker.Api\\JobApplicationTracker.Api\\obj"
+  ],
+  "SelectedNode": "\\job-application-client\\.gitignore",
+  "PreviewInSolutionExplorer": false
+}
