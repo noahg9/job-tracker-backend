@@ -6,7 +6,6 @@ export interface JobApplication {
     role: string;
     status: number;
     appliedDate: string;
-    round?: number;
     notes: string;
 }
 

@@ -24,31 +24,3 @@ dist-ssr
 *.sw?
 
 .env
-
-# .NET / C# / backend stuff
-bin/
-obj/
-*.user
-*.rsuser
-*.suo
-*.userosscache
-*.sln.docstates
-.vs/
-*.exe
-*.dll
-*.pdb
-*.cache
-*.log
-
-# SQLite database files (if you use them locally)
-*.db
-*.sqlite
-
-# IIS Express files
-IISExpress/
-
-# Visual Studio Code settings (if you want to keep them separate from frontend)
-.vscode/*
-
-# Other IDEs
-.idea/

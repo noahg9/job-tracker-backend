@@ -302,7 +302,7 @@ function App() {
                                 onChange={(e) => setEditAppliedDate(e.target.value)}
                                 style={{ padding: "0.3rem 0.5rem", borderRadius: "4px", border: "1px solid #ccc" }}
                             />
-                           
+
                             <button
                                 onClick={saveEdit}
                                 style={{
