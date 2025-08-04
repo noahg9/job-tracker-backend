@@ -1,0 +1,54 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.env
+
+# .NET / C# / backend stuff
+bin/
+obj/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+
+# SQLite database files (if you use them locally)
+*.db
+*.sqlite
+
+# IIS Express files
+IISExpress/
+
+# Visual Studio Code settings (if you want to keep them separate from frontend)
+.vscode/*
+
+# Other IDEs
+.idea/
