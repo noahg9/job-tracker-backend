@@ -4,18 +4,16 @@ A web application built with .NET and React to help you keep track of your job a
 
 ---
 
-## Screenshots
+## Frontend Repositories
 
-![Screenshot 1](images/screenshot1.jpg)
-![Screenshot 2](images/screenshot2.jpg) |
+[Web](https://github.com/noahg9/job-tracker-web)  
+[Android](https://github.com/noahg9/job-tracker-android)
 
 ---
 
 ## Tech Stack
 
-- **Frontend:** React + TypeScript + SCSS
 - **Backend:** .NET 8 Web API
-- **Database:** SQLite (local)
 
 ---
 
@@ -24,8 +22,6 @@ A web application built with .NET and React to help you keep track of your job a
 ### Prerequisites
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download)
-- [Node.js & npm](https://nodejs.org/)
-- [SQLite](https://www.sqlite.org/index.html) (or Azure SQL)
 
 ### Local Setup
 
@@ -35,9 +31,3 @@ A web application built with .NET and React to help you keep track of your job a
    cd JobApplicationTracker.Api
    dotnet run
 	```
-3. Run frontend:
-   ```bash
-   cd job-application-client
-   npm install
-   npm run build
-   ```

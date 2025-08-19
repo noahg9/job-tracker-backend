@@ -1,21 +1,8 @@
 # Logs
 logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-# Node modules and build output (React/TypeScript)
-node_modules/
-dist/
-dist-ssr/
-build/
-.cache/
-*.local
-
-# ASP.NET Core configuration files
+# ASP.NET Core configuration files (keep secrets out of repo)
 appsettings.json
 appsettings.*.json
 
@@ -26,29 +13,18 @@ appsettings.*.json
 .env.test.local
 .env.production.local
 
-# Editor directories and files
-.vscode/
-!.vscode/extensions.json
-.idea/
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# React/TypeScript specific
-*.tsbuildinfo
-
-# .NET build results and user files
+# .NET build results
 bin/
 obj/
+out/
 TestResults/
+
+# Visual Studio user-specific files
 *.user
 *.userosscache
 *.suo
-*.ide
 *.rsuser
+*.ide
 *.resharper
 *.DotSettings.user
 
@@ -58,7 +34,7 @@ TestResults/
 # Rider specific
 .idea/
 
-# Dotnet Entity Framework Migrations folder (optional, if you don't want migrations in repo)
+# Entity Framework migrations (optional, uncomment if you don’t want migrations in repo)
 # Migrations/
 
 # Others (optional, if applicable)
@@ -67,7 +43,6 @@ TestResults/
 *.exe
 *.dll
 *.cache
-*.log
 *.vspscc
 
 # Backup files
@@ -75,3 +50,6 @@ TestResults/
 *.bak
 *.backup
 
+# macOS/Windows system files
+.DS_Store
+Thumbs.db
