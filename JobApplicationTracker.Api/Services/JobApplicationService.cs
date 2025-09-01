@@ -17,58 +17,43 @@ namespace JobApplicationTracker.Api.Services
             _logger = logger;
         }
 
-        public async Task<List<JobApplication>> GetAllAsync()
+        public async Task<List<JobApplication>> GetAllAsync(string username)
         {
-            _logger.LogDebug("Fetching all job applications from repository.");
-            return await _repository.GetAllAsync();
+            return await _repository.GetAllByUserAsync(username);
         }
 
         public async Task<JobApplication?> GetByIdAsync(int id)
         {
-            _logger.LogDebug("Fetching job application with ID {Id} from repository.", id);
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<JobApplication> CreateAsync(JobApplication jobApp)
+        public async Task<JobApplication> CreateAsync(JobApplication jobApp, string username)
         {
-            _logger.LogDebug("Creating new job application for {Company}.", jobApp.Company);
+            jobApp.Username = username;
             await _repository.AddAsync(jobApp);
             return jobApp;
         }
 
-        public async Task<bool> UpdateAsync(int id, JobApplication jobApp)
+        public async Task<bool> UpdateAsync(int id, JobApplication jobApp, string username)
         {
-            _logger.LogDebug("Attempting to update job application with ID {Id}.", id);
-
             if (id != jobApp.Id)
-            {
-                _logger.LogWarning("Update failed: route ID ({RouteId}) does not match body ID ({BodyId}).", id, jobApp.Id);
                 return false;
-            }
 
-            if (!await _repository.ExistsAsync(id))
-            {
-                _logger.LogWarning("Update failed: job application with ID {Id} does not exist.", id);
+            var existing = await _repository.GetByIdAsync(id);
+            if (existing == null || existing.Username != username)
                 return false;
-            }
 
             await _repository.UpdateAsync(jobApp);
-            _logger.LogInformation("Job application with ID {Id} updated successfully.", id);
             return true;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id, string username)
         {
-            _logger.LogDebug("Attempting to delete job application with ID {Id}.", id);
             var jobApp = await _repository.GetByIdAsync(id);
-            if (jobApp == null)
-            {
-                _logger.LogWarning("Delete failed: job application with ID {Id} not found.", id);
+            if (jobApp == null || jobApp.Username != username)
                 return false;
-            }
 
             await _repository.DeleteAsync(jobApp);
-            _logger.LogInformation("Job application with ID {Id} deleted successfully.", id);
             return true;
         }
     }

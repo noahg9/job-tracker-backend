@@ -1,12 +1,14 @@
-﻿using JobApplicationTracker.Api.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using JobApplicationTracker.Api.Models;
 
-namespace JobApplicationTracker.Api.Data;
-
-public class AppDbContext : DbContext
+namespace JobApplicationTracker.Api.Data
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    public class AppDbContext : IdentityDbContext<IdentityUser>
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<JobApplication> JobApplications { get; set; }
+        public DbSet<JobApplication> JobApplications { get; set; } = null!;
+    }
 }

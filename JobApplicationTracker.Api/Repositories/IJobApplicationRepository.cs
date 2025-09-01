@@ -6,7 +6,7 @@ namespace JobApplicationTracker.Api.Repositories
 {
     public interface IJobApplicationRepository
     {
-        Task<List<JobApplication>> GetAllAsync();
+        Task<List<JobApplication>> GetAllByUserAsync(string username);
         Task<JobApplication?> GetByIdAsync(int id);
         Task AddAsync(JobApplication jobApp);
         Task UpdateAsync(JobApplication jobApp);

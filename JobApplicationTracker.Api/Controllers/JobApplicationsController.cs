@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using JobApplicationTracker.Api.Services;
-using JobApplicationTracker.Api.Repositories;
 using JobApplicationTracker.Api.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class JobApplicationsController : ControllerBase
@@ -17,66 +18,72 @@ public class JobApplicationsController : ControllerBase
         _logger = logger;
     }
 
+    // Helper to get the current user's email
+    private string GetCurrentUserEmail()
+    {
+        return User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+    }
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<JobApplication>>> GetAll()
     {
-        _logger.LogInformation("GET request received: Get all job applications.");
-        var jobs = await _service.GetAllAsync();
-        _logger.LogInformation("Returning {Count} job applications.", jobs.Count);
+        var email = GetCurrentUserEmail();
+        if (string.IsNullOrEmpty(email)) return Unauthorized();
+
+        var jobs = await _service.GetAllAsync(email);
         return Ok(jobs);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<JobApplication>> GetById(int id)
     {
-        _logger.LogInformation("GET request received: Get job application with ID {Id}.", id);
-        var job = await _service.GetByIdAsync(id);
-        if (job == null)
-        {
-            _logger.LogWarning("Job application with ID {Id} not found.", id);
-            return NotFound();
-        }
+        var email = GetCurrentUserEmail();
+        if (string.IsNullOrEmpty(email)) return Unauthorized();
 
-        _logger.LogInformation("Returning job application with ID {Id}.", id);
+        var job = await _service.GetByIdAsync(id);
+        if (job == null || job.Username != email)
+            return NotFound();
+
         return Ok(job);
     }
 
     [HttpPost]
     public async Task<ActionResult<JobApplication>> Create(JobApplication jobApp)
     {
-        _logger.LogInformation("POST request received: Creating job application for {Company}.", jobApp.Company);
-        var created = await _service.CreateAsync(jobApp);
-        _logger.LogInformation("Job application created with ID {Id}.", created.Id);
+        var email = GetCurrentUserEmail();
+        if (string.IsNullOrEmpty(email)) return Unauthorized();
+
+        jobApp.Username = email;
+
+        var created = await _service.CreateAsync(jobApp, email);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, JobApplication jobApp)
     {
-        _logger.LogInformation("PUT request received: Update job application with ID {Id}.", id);
-        var success = await _service.UpdateAsync(id, jobApp);
-        if (!success)
-        {
-            _logger.LogWarning("Failed to update job application with ID {Id}. It may not exist or ID mismatch.", id);
-            return NotFound();
-        }
+        var email = GetCurrentUserEmail();
+        if (string.IsNullOrEmpty(email)) return Unauthorized();
 
-        _logger.LogInformation("Job application with ID {Id} updated successfully.", id);
+        jobApp.Username = email;
+
+        var success = await _service.UpdateAsync(id, jobApp, email);
+        if (!success)
+            return NotFound();
+
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        _logger.LogInformation("DELETE request received: Delete job application with ID {Id}.", id);
-        var success = await _service.DeleteAsync(id);
-        if (!success)
-        {
-            _logger.LogWarning("Failed to delete job application with ID {Id}. It may not exist.", id);
-            return NotFound();
-        }
+        var email = GetCurrentUserEmail();
+        if (string.IsNullOrEmpty(email)) return Unauthorized();
 
-        _logger.LogInformation("Job application with ID {Id} deleted successfully.", id);
+        var success = await _service.DeleteAsync(id, email);
+        if (!success)
+            return NotFound();
+
         return NoContent();
     }
 }
