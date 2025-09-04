@@ -17,6 +17,6 @@ public class JobApplication
     public ApplicationStatus Status { get; set; }
     public DateTime AppliedDate { get; set; }
     public string? Notes { get; set; }
-    public required string Username { get; set; }
+    public string? Username { get; set; }
 }
 
