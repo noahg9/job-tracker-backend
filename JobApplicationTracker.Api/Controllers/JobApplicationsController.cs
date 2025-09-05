@@ -2,7 +2,7 @@
 using JobApplicationTracker.Api.Services;
 using JobApplicationTracker.Api.Models;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+using System.Text.Json;
 
 [Authorize]
 [ApiController]
@@ -18,19 +18,21 @@ public class JobApplicationsController : ControllerBase
         _logger = logger;
     }
 
-    // Helper to get the current user's email
     private string GetCurrentUserEmail()
     {
-        var email = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-        if (string.IsNullOrEmpty(email))
+        if (!Request.Headers.TryGetValue("x-ms-client-principal", out var header)) return string.Empty;
+
+        try
         {
-            _logger.LogWarning("Unable to extract user email from JWT claims.");
+            var decoded = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(header));
+            var principal = JsonSerializer.Deserialize<ClientPrincipal>(decoded);
+            return principal?.UserId ?? string.Empty;
         }
-        else
+        catch (Exception ex)
         {
-            _logger.LogInformation("Authenticated request from user: {Email}", email);
+            _logger.LogError(ex, "Failed to parse x-ms-client-principal header.");
+            return string.Empty;
         }
-        return email;
     }
 
     [HttpGet]
@@ -40,7 +42,6 @@ public class JobApplicationsController : ControllerBase
         if (string.IsNullOrEmpty(email)) return Unauthorized();
 
         _logger.LogInformation("Fetching all job applications for {Email}", email);
-
         var jobs = await _service.GetAllAsync(email);
         return Ok(jobs);
     }
@@ -51,14 +52,8 @@ public class JobApplicationsController : ControllerBase
         var email = GetCurrentUserEmail();
         if (string.IsNullOrEmpty(email)) return Unauthorized();
 
-        _logger.LogInformation("Fetching job application {Id} for {Email}", id, email);
-
         var job = await _service.GetByIdAsync(id);
-        if (job == null || job.Username != email)
-        {
-            _logger.LogWarning("Job application {Id} not found or does not belong to {Email}", id, email);
-            return NotFound();
-        }
+        if (job == null || job.Username != email) return NotFound();
 
         return Ok(job);
     }
@@ -66,21 +61,13 @@ public class JobApplicationsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<JobApplication>> Create(JobApplication jobApp)
     {
-        _logger.LogInformation("Received Create request with payload: {@JobApp}", jobApp);
-
-        if (!ModelState.IsValid)
-        {
-            _logger.LogWarning("Model validation failed: {@ModelState}", ModelState);
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var email = GetCurrentUserEmail();
         if (string.IsNullOrEmpty(email)) return Unauthorized();
 
         jobApp.Username = email;
-
         var created = await _service.CreateAsync(jobApp, email);
-        _logger.LogInformation("Created job application {Id} for {Email}", created.Id, email);
 
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
@@ -88,46 +75,35 @@ public class JobApplicationsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, JobApplication jobApp)
     {
-        _logger.LogInformation("Received Update request for {Id} with payload: {@JobApp}", id, jobApp);
-
-        if (!ModelState.IsValid)
-        {
-            _logger.LogWarning("Model validation failed: {@ModelState}", ModelState);
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var email = GetCurrentUserEmail();
         if (string.IsNullOrEmpty(email)) return Unauthorized();
 
         jobApp.Username = email;
-
         var success = await _service.UpdateAsync(id, jobApp, email);
-        if (!success)
-        {
-            _logger.LogWarning("Update failed. Job application {Id} not found or does not belong to {Email}", id, email);
-            return NotFound();
-        }
+        if (!success) return NotFound();
 
-        _logger.LogInformation("Updated job application {Id} for {Email}", id, email);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        _logger.LogInformation("Received Delete request for {Id}", id);
-
         var email = GetCurrentUserEmail();
         if (string.IsNullOrEmpty(email)) return Unauthorized();
 
         var success = await _service.DeleteAsync(id, email);
-        if (!success)
-        {
-            _logger.LogWarning("Delete failed. Job application {Id} not found or does not belong to {Email}", id, email);
-            return NotFound();
-        }
+        if (!success) return NotFound();
 
-        _logger.LogInformation("Deleted job application {Id} for {Email}", id, email);
         return NoContent();
+    }
+
+    private class ClientPrincipal
+    {
+        public string IdentityProvider { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
+        public string UserDetails { get; set; } = string.Empty;
+        public string[] UserRoles { get; set; } = Array.Empty<string>();
     }
 }

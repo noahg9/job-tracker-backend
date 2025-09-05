@@ -58,3 +58,6 @@ Thumbs.db
 *.db
 *.db-shm
 *.db-wal
+
+publish
+publish.zip
